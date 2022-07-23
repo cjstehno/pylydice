@@ -8,8 +8,10 @@ DICE_DEFN_PATTERN = "(\\d*)d(\\d*)([+|-]?\\d*)"
 
 # FIXME: change to best-n and worst-n
 
+
 class RollType(Enum):
     """Defines the type of roll being made."""
+
     NORMAL = 1
     ADVANTAGE = 2
     DISADVANTAGE = 3
@@ -21,6 +23,7 @@ class RollType(Enum):
 @dataclass
 class RollDefinition:
     """Defines a roll specification."""
+
     num_rolls: int
     die: int
     modifier: int
@@ -29,11 +32,11 @@ class RollDefinition:
     @property
     def defn(self):
         """Generates the formatted string representation of the roll definition."""
-        mod = ''
+        mod = ""
         if self.modifier > 0:
-            mod = f'+{self.modifier}'
+            mod = f"+{self.modifier}"
         elif self.modifier < 0:
-            mod = f'{self.modifier}'
+            mod = f"{self.modifier}"
 
         return f"{self.num_rolls if self.num_rolls > 1 else ''}d{self.die}{mod}"
 
@@ -41,6 +44,7 @@ class RollDefinition:
 @dataclass
 class RollResults:
     """The results of a roll."""
+
     roll_defn: RollDefinition
     rolls: [int]
 
@@ -60,22 +64,14 @@ class RollResults:
 
 def main():
     """Entry point to the application."""
-    parser = argparse.ArgumentParser(
-        description='Roll some dice.'
+    parser = argparse.ArgumentParser(description="Roll some dice.")
+    parser.add_argument(
+        "-a", "--advantage", action=argparse.BooleanOptionalAction, default=False
     )
     parser.add_argument(
-        '-a',
-        '--advantage',
-        action=argparse.BooleanOptionalAction,
-        default=False
+        "-d", "--disadvantage", action=argparse.BooleanOptionalAction, default=False
     )
-    parser.add_argument(
-        '-d',
-        '--disadvantage',
-        action=argparse.BooleanOptionalAction,
-        default=False
-    )
-    parser.add_argument('roll_defn')
+    parser.add_argument("roll_defn")
 
     args = parser.parse_args()
 
@@ -86,13 +82,19 @@ def main():
         modifier = RollType.DISADVANTAGE
 
     rolled = roll(args.roll_defn, modifier)
-    roll_mod = rolled.roll_defn.modifier if rolled.roll_defn.modifier < 0 else f"+{rolled.roll_defn.modifier}"
+    roll_mod = (
+        rolled.roll_defn.modifier
+        if rolled.roll_defn.modifier < 0
+        else f"+{rolled.roll_defn.modifier}"
+    )
 
-    print(f"""\
+    print(
+        f"""\
 Rolling {rolled.roll_defn.defn} ({rolled.roll_defn.type})
 Rolled {rolled.rolls} ({roll_mod})
 Got {rolled.total}
-    """)
+    """
+    )
 
 
 def roll(dice_defn_str, roll_type) -> RollResults:
@@ -103,7 +105,7 @@ def roll(dice_defn_str, roll_type) -> RollResults:
         int(_m.group(1)) if _m.group(1) else 1,
         int(_m.group(2)),
         int(_m.group(3)) if _m.group(3) else 0,
-        roll_type
+        roll_type,
     )
 
     if roll_type == RollType.DISADVANTAGE:
